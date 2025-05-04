@@ -14,10 +14,12 @@
   <ItemGroup>
     <ProjectReference Include="..\MyAspire.ApiService\MyAspire.ApiService.csproj" />
     <ProjectReference Include="..\MyAspire.Web\MyAspire.Web.csproj" />
+    <ProjectReference Include="..\MyAspire.Database\MyAspire.Database.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.2.0" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.2.0" />
   </ItemGroup>
 
 </Project>
