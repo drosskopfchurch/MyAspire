@@ -1,0 +1,22 @@
+@page "/service-bus"
+@using Azure.Messaging.ServiceBus
+@inject ServiceBusClient sbClient
+@rendermode InteractiveServer
+
+
+<h1>Service Bus</h1>
+
+<FluentTextField @bind-Value="messageBody" Label="Message Body" Placeholder="Enter message body" Required="true" RequiredErrorMessage="Message body is required." IsMultiline="true" MaxLength="1000" MinLength="1"></FluentTextField>
+
+<FluentButton @onclick="() => SendMessageAsync()">Send Message</FluentButton>
+
+@code{
+    private string messageBody = string.Empty;
+    private Task SendMessageAsync()
+    {
+        var sender = sbClient.CreateSender("queue");
+        var message = new ServiceBusMessage(messageBody);
+        return sender.SendMessageAsync(message);
+    }
+}
+

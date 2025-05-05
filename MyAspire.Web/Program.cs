@@ -13,6 +13,8 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddFluentUIComponents();
 
+builder.AddAzureServiceBusClient(connectionName: "messaging");
+
 builder.Services.AddOutputCache();
 
 builder.Services.AddHttpClient<WeatherApiClient>(client =>

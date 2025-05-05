@@ -1,3 +1,5 @@
+using Aspire.Hosting.Azure;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 var sqlserver = builder.AddSqlServer("sqlserver")
@@ -17,12 +19,41 @@ var apiService = builder.AddProject<Projects.MyAspire_ApiService>("apiservice")
     .WithExternalHttpEndpoints()
     .WithReference(db1)
     .WithReference(cache)
-    .WaitFor(migrationService);  
+    .WaitFor(migrationService);
+
+var serviceBus = builder.AddAzureServiceBus("messaging").RunAsEmulator(emulator =>
+{
+    emulator.WithHostPort(7777);
+});
+var queue = serviceBus.AddServiceBusQueue("queue");
+var topic = serviceBus.AddServiceBusTopic("topic");
+topic.AddServiceBusSubscription("sub1")
+     .WithProperties(subscription =>
+     {
+         subscription.MaxDeliveryCount = 10;
+         subscription.Rules.Add(
+             new AzureServiceBusRule("app-prop-filter-1")
+             {
+                 CorrelationFilter = new()
+                 {
+                     ContentType = "application/text",
+                     CorrelationId = "id1",
+                     Subject = "subject1",
+                     MessageId = "msgid1",
+                     ReplyTo = "someQueue",
+                     ReplyToSessionId = "sessionId",
+                     SessionId = "session1",
+                     SendTo = "xyz"
+                 }
+             });
+     });
 
 builder.AddProject<Projects.MyAspire_Web>("webfrontend")
     .WithExternalHttpEndpoints()
     .WithReference(db1)
     .WithReference(apiService)
+    .WithReference(serviceBus)
+    .WithReference(queue)
     .WaitFor(apiService);
 
 
