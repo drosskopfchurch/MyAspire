@@ -36,3 +36,14 @@
 9. Add access to api service
 - ```var apiService = builder.AddProject<Projects.MyAspire_ApiService>("apiservice").WithExternalHttpEndpoints().WithReference(db1).WaitFor(db1);  ```
 10. Add Entities, Seed Data, Migrations
+
+
+## Redis Cache Steps
+[https://learn.microsoft.com/en-us/dotnet/aspire/caching/stackexchange-redis-integration?tabs=dotnet-cli&pivots=redis](https://learn.microsoft.com/en-us/dotnet/aspire/caching/stackexchange-redis-integration?tabs=dotnet-cli&pivots=redis)
+
+1. ```dotnet add package Aspire.Hosting.Redis``` run on app host
+2. ```var cache = builder.AddRedis("cache").WithLifetime(ContainerLifetime.Persistent).WithDataVolume(isReadOnly: false).WithRedisInsight();``` Add Reference 
+3. ```builder.AddProject<MyAspire.Api>().WithReference(cache);``` Add Reference
+4. ```dotnet add package Aspire.StackExchange.Redis``` Run on client project
+5. ```builder.AddRedisClient(connectionName: "cache");``` add to client program.cs
+
