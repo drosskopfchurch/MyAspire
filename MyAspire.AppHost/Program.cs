@@ -56,6 +56,13 @@ builder.AddProject<Projects.MyAspire_Web>("webfrontend")
     .WithReference(queue)
     .WaitFor(apiService);
 
+builder.AddNpmApp("web-game", "../MyAspire.Web.Game/web-game", "dev")
+    .WithReference(apiService)
+    .WaitFor(apiService)
+    .WithEnvironment("BROWSER", "none") // Disable opening browser on npm start
+    .WithHttpEndpoint(env: "PORT")
+    .WithExternalHttpEndpoints();
+
 
 
 builder.Build().Run();

@@ -116,3 +116,50 @@
         var message = new ServiceBusMessage(messageBody);
         return sender.SendMessageAsync(message);
         ```
+
+## React App 
+1. Install NodeJs
+    ```cmd
+    winget install OpenJS.NodeJS
+    ```
+2. Install NextJS
+    ```cmd
+    npx create-next-app@latest
+    ```
+3. Modify Page.js
+4. Connect Set up Api
+    ```javascript
+    export const dynamic = 'force-static'
+
+    export async function GET(req) {
+        const { url } = req;
+        const apiservice = process.env.services__apiservice__https__0 ||
+            process.env.services__apiservice__http__0
+        // console.log(JSON.stringify(req))
+        const fetchUrl = `${apiservice}/${url.replace('http://localhost:3000/api/', '')}`
+        console.log(fetchUrl)
+        const res = await fetch(`${fetchUrl}`)
+        const data = await res.json()
+
+        return Response.json({ data })
+    }
+    ```
+5. Create .env file to set local variable for development 
+    ```cmd
+    NODE_TLS_REJECT_UNAUTHORIZED = '0'
+    ```
+6. App Host Project Setup 
+    1. Add Node Package 
+        ```xml
+        <PackageReference Include="Aspire.Hosting.NodeJs" Version="*" />
+        ```
+    2. Register NodeJs App
+        ```javascript
+        builder.AddNpmApp("web-game", "../MyAspire.Web.Game/web-game", "dev")
+        .WithReference(apiService)
+        .WaitFor(apiService)
+        .WithEnvironment("BROWSER", "none") // Disable opening browser on npm start
+        .WithHttpEndpoint(env: "PORT")
+        .WithExternalHttpEndpoints();
+        ```
+    2. 
