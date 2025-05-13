@@ -1,4 +1,5 @@
 using Aspire.Hosting.Azure;
+using Azure.Provisioning.Storage;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -21,11 +22,14 @@ var apiService = builder.AddProject<Projects.MyAspire_ApiService>("apiservice")
     .WithReference(cache)
     .WaitFor(migrationService);
 
+
+
 var serviceBus = builder.AddAzureServiceBus("messaging").RunAsEmulator(emulator =>
 {
     emulator.WithHostPort(7777);
 });
 var queue = serviceBus.AddServiceBusQueue("queue");
+var answers = serviceBus.AddServiceBusQueue("answers");
 var topic = serviceBus.AddServiceBusTopic("topic");
 topic.AddServiceBusSubscription("sub1")
      .WithProperties(subscription =>
@@ -47,6 +51,28 @@ topic.AddServiceBusSubscription("sub1")
                  }
              });
      });
+var storage = builder.AddAzureStorage("storage").RunAsEmulator()
+    .ConfigureInfrastructure((infrastructure) =>
+    {
+        var storageAccount = infrastructure.GetProvisionableResources().OfType<StorageAccount>().FirstOrDefault(r => r.BicepIdentifier == "storage")
+            ?? throw new InvalidOperationException($"Could not find configured storage account with name 'storage'");
+
+        // Ensure that public access to blobs is disabled
+        storageAccount.AllowBlobPublicAccess = false;
+    });
+
+var apiGame = builder.AddAzureFunctionsProject<Projects.MyAspire_Api_Game>("api-game")
+    .WithExternalHttpEndpoints()
+    .WithReference(serviceBus)
+    .WithReference(answers)
+    .WaitFor(storage)
+    .WaitFor(serviceBus)
+    .WithRoleAssignments(storage,
+        // Storage Account Contributor and Storage Blob Data Owner roles are required by the Azure Functions host
+        StorageBuiltInRole.StorageAccountContributor, StorageBuiltInRole.StorageBlobDataOwner,
+        // Queue Data Contributor role is required to send messages to the queue
+        StorageBuiltInRole.StorageQueueDataContributor)
+    .WithHostStorage(storage);
 
 builder.AddProject<Projects.MyAspire_Web>("webfrontend")
     .WithExternalHttpEndpoints()
@@ -58,10 +84,13 @@ builder.AddProject<Projects.MyAspire_Web>("webfrontend")
 
 builder.AddNpmApp("web-game", "../MyAspire.Web.Game/web-game", "dev")
     .WithReference(apiService)
+    .WithReference(apiGame)
     .WaitFor(apiService)
+    .WaitFor(apiGame)
     .WithEnvironment("BROWSER", "none") // Disable opening browser on npm start
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints();
+
 
 
 

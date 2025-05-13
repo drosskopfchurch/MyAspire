@@ -8,12 +8,27 @@ export default function Home() {
   const [question, setQuestion] = useState({});
   const [questions, setQuestions] = useState([]);
   const start = async () => {
-    const response = await fetch(`api/questions`);
+    const response = await fetch(`api-service/questions`);
     debugger
     const questionData = await response.json(); // Await the JSON parsing
     setQuestions(questionData.data); // Assuming the API response has a `data` property
     console.log(`Start Game for ${name} with question ${JSON.stringify(question)}`);
   };
+
+  const answer = async () => {
+    const response = await fetch(`api-game/answer`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ 
+        QuestionId: 1, 
+        Time: 1.02,
+        Value: 10        
+       }),
+    });
+    console.log(`Ok? ${response.ok}`);
+  }
 
   return (
     <div className={styles.page}>
@@ -23,6 +38,7 @@ export default function Home() {
         </div>
         <div>
           <button onClick={()=>start()}>Start</button>
+          <button onClick={()=>answer()}>answer</button>
         </div>
       </div>
       <div>{JSON.stringify(questions)}</div>

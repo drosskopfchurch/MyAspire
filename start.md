@@ -100,6 +100,7 @@
     3. Add a Service Bus Queue:
         ```csharp
         var queue = serviceBus.AddServiceBusQueue("queue");
+        var answerQueu = serviceBus.AddServiceBusQueue("answer-queue");
         ```
 2. On Client Project:
     1. Add Azure Service Bus Client:
@@ -162,4 +163,14 @@
         .WithHttpEndpoint(env: "PORT")
         .WithExternalHttpEndpoints();
         ```
-    2. 
+## Functions Api 
+1. Install Function CLI 
+    ```cmd
+    winget install Microsoft.Azure.FunctionsCoreTools
+    ```
+2. Create a new Api Project, after creating a folder run the following
+    ```cmd
+    func init
+    ```
+    choose dotnet-isolated, c#-isolated
+3. 

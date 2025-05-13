@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "MyAspire_Api_Game": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7250",
+      "launchBrowser": false
+    }
+  }
+}
