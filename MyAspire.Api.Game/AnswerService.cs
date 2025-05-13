@@ -8,6 +8,7 @@ using MyAspire.Database;
 using System.Text.Json;
 namespace MyAspire.Api.Game;
 public class AnswerService(ServiceBusClient serviceBusClient){
+    [Function(nameof(AnswerService))]
     public async Task SaveAnswer([HttpTrigger(AuthorizationLevel.Function, "post", Route = "answers")] HttpRequest req)
     {
         // Read the request body
@@ -16,7 +17,7 @@ public class AnswerService(ServiceBusClient serviceBusClient){
 
         var sender = serviceBusClient.CreateSender("answers");
         var message = new ServiceBusMessage(JsonSerializer.Serialize(answer));
-        sender.SendMessageAsync(message);
+        await sender.SendMessageAsync(message);
 
     }
 }

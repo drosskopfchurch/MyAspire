@@ -1,0 +1,10 @@
+###
+POST http://localhost:7071/api/answers
+
+{
+  "questionId": 1,
+  "answer": "This is a test answer"
+}
+
+###
+GET http://localhost:7071/api/ping
